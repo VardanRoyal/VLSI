@@ -1,0 +1,94 @@
+//CARRY LOOK AHEAD ADDER
+
+module cla(s,cout,p,g,a,b,cin);
+input [3:0]a,b;
+input cin;
+output [3:0]s;
+output cout,p,g;
+wire [3:0]s;
+wire [8:1]w,h;
+wire [3:1]c;
+wire [12:1]lt;
+wire COUT,P,G,S;
+
+ht ht1(w[2:1],b[0],a[0]);//ht=half toad
+ht ht2(w[4:3],b[1],a[1]);
+ht ht3(w[6:5],b[2],a[2]);
+ht ht4(w[8:7],b[3],a[3]);
+ht ht5({s[0],h[1]},w[2],cin);
+ht ht6({s[1],h[3]},w[4],c[1]);
+ht ht7({s[2],h[5]},w[6],c[2]);
+ht ht8({s[3],h[7]},w[8],c[3]);
+ 
+or bc1(c[1],h[1],w[1]);
+or bc2(c[2],h[3],w[3]);
+or bc3(c[3],h[5],w[5]);
+or bc4(cout,h[7],w[7]);
+
+//LOOK AHEAD BLOCK
+
+toad t1(lt[2:1],w[8],w[6]);//lt=look ahead block toad
+toad t2(lt[4:3],w[4],lt[1]);
+toad t3({lt[5],p},w[2],lt[3]);
+toad t4(lt[8:7],w[1],lt[4]);
+toad t5(lt[10:9],w[3],lt[1]);
+toad t6(lt[12:11],w[8],w[5]);
+or lr(g,lt[7],lt[9],lt[11],w[7]);
+endmodule
+
+
+//TOAD
+
+module toad(o,a,b);
+input a,b;
+output [2:1]o;
+
+assign o[1]=a&b;
+assign o[2]=a&~b;
+endmodule
+
+//HALF TOAD
+
+module ht(o,a,b);
+input a,b;
+output [2:1]o;
+wire [3:1]w;
+
+toad td1({w[1],o[1]},a,b);
+toad td2(w[3:2],b,a);
+or tr(o[2],w[1],w[3]);
+endmodule
+
+//TEST BENCH
+
+module cla_tb();
+reg [3:0]a,b;
+reg cin;
+wire[3:0]s;
+wire cout,p,g;
+
+cla x1(s,cout,p,g,a,b,cin);
+initial
+repeat(100)
+begin
+a=$random;
+b=$random;
+cin=$random;
+#100;
+end
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

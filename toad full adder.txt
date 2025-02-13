@@ -1,0 +1,45 @@
+module toad(o,a,b);
+input a,b;
+output [2:1]o;
+
+assign o[1]=a&b;
+assign o[2]=a&~b;
+endmodule
+
+//HALF TOAD
+
+module ht(o,a,b);
+input a,b;
+output [2:1]o;
+wire [3:1]w;
+
+toad td1({w[1],o[1]},a,b);
+toad td2(w[3:2],b,a);
+or tr(o[2],w[1],w[3]);
+endmodule
+//toad fa
+module toad_fulladder(input a,b,cin,
+output sum,carry);
+wire [2:0]w;
+ht n1(w[1:0],a,b);
+ht n2({sum,w[2]},w[1],cin);
+or r1(carry,w[0],w[2]);
+endmodule
+
+//tb
+module toad_fulladder_tb();
+reg a,b,cin;
+
+wire sum,carry;
+
+
+toad_fulladder t1(a,b,cin,sum,carry);
+initial
+repeat(100)
+begin
+a=$random;
+b=$random;
+cin=$random;
+#100;
+end
+endmodule

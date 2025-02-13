@@ -1,0 +1,64 @@
+module toad(o,i,j);
+input i,j;
+output [2:1]o;
+
+assign o[1]=i&j;
+assign o[2]=i&~j;
+endmodule
+//HALF TOAD
+module ht(o,a,b);
+input a,b;
+output [2:1]o;
+wire [3:1]w;
+
+toad td1({w[1],o[1]},a,b);
+toad td2(w[3:2],b,a);
+or tr(o[2],w[1],w[3]);
+endmodule
+
+//pac
+module pac(s,cout,a,b);
+input [3:0]a,b;
+output [3:0]s;
+output cout;
+
+wire [3:0]p,g;
+wire [3:2]c;
+wire [3:1]w;
+wire COUT;wire [3:0]S;
+
+ht ht0({s[0],g[0]},b[0],a[0]);
+ht ht1({p[1],g[1]},b[1],a[1]);
+ht ht2({p[2],g[2]},b[2],a[2]);
+ht ht3({p[3],g[3]},b[3],a[3]);
+ht ht4({s[1],w[1]},g[0],p[1]);
+ht ht5({s[2],w[2]},c[2],p[2]);
+ht ht6({s[3],w[3]},c[3],p[3]);
+
+or bc1(c[2],w[1],g[1]);
+or bc2(c[3],w[2],g[2]);
+or bc3(COUT,w[3],g[3]);
+
+
+assign s=S;
+assign cout=COUT;
+
+endmodule
+
+
+//TEST BENCH
+module pac_tb();
+reg [3:0]a,b;
+wire [3:0]s;
+wire cout;
+
+pac x1(s,cout,a,b);
+initial
+begin
+repeat(100)
+a=$random;
+b=$random;
+#100;
+end
+
+endmodule
